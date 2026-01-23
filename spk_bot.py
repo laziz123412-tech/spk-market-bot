@@ -1,14 +1,14 @@
+import os
 import random
 from aiogram import Bot, Dispatcher, executor, types
 
-TOKEN = "KEYIN_QO'YAMIZ"
-ADMIN_ID = 0
+TOKEN = os.getenv("BOT_TOKEN")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
-@dp.message_handler(commands=['start'])
-async def start(message: types.Message):
+@dp.message_handler(commands=["start"])
+async def start_cmd(message: types.Message):
     kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add("🇺🇿 O‘zbekcha", "🇷🇺 Русский")
     await message.answer(
@@ -17,27 +17,17 @@ async def start(message: types.Message):
     )
 
 @dp.message_handler(lambda m: m.text in ["🇺🇿 O‘zbekcha", "🇷🇺 Русский"])
-async def lang(message: types.Message):
-    await message.answer(
-        "SPK Market Cashback Bot\n\n"
-        "Xarid summasini yozing:",
-        reply_markup=types.ReplyKeyboardRemove()
-    )
+async def lang_select(message: types.Message):
+    await message.answer("Xarid summasini yozing:")
 
-@dp.message_handler()
-async def cashback(message: types.Message):
-    if not message.text.isdigit():
-        return
-
+@dp.message_handler(lambda m: m.text.isdigit())
+async def cashback_calc(message: types.Message):
     summa = int(message.text)
-    foiz = random.randint(1, 10)
-    cashback = summa * foiz // 100
-
+    percent = random.randint(1, 10)
+    cashback = summa * percent // 100
     await message.answer(
-        f"Xarid: {summa} so‘m\n"
-        f"Cashback: {foiz}%\n"
-        f"Qaytadi: {cashback} so‘m"
+        f"Cashback: {percent}%\nQaytadi: {cashback} so‘m"
     )
 
 if __name__ == "__main__":
-    executor.start_polling(dp)
+    executor.start_polling(dp, skip_updates=True)
